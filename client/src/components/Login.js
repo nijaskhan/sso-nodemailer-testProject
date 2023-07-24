@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import jwtDecode from 'jwt-decode';
+import { useGoogleLogin } from '@react-oauth/google';
 import {
     MDBBtn,
     MDBContainer,
@@ -17,6 +17,7 @@ import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import { googleAuthLogin, loginUser } from '../api/apiCalls';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
     const { register, handleSubmit } = useForm();
@@ -25,21 +26,32 @@ const Login = () => {
     const navigate = useNavigate();
     const loginbtn = useRef(null);
 
-    const handleGoogleCallback = async(googleUser) => {
-        const user = jwtDecode(googleUser.credential);
-        try{
-            const response = await googleAuthLogin(user);
-            if(response.success){
-                console.log("login successful");
-                localStorage.setItem("userId", JSON.stringify(response.user._id));
-                navigate('/');
-            }else{
-                toast.error(response.message);
+    const googleLogin = useGoogleLogin({
+        onSuccess: async (CredentialResponse) => {
+            const access_token = CredentialResponse.access_token
+            try {
+                const googleResponse = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+                if (googleResponse.data) {
+                    const response = await googleAuthLogin(googleResponse.data);
+                    if (response.success) {
+                        console.log("login successful");
+                        localStorage.setItem("userId", JSON.stringify(response?.user?._id));
+                        navigate('/');
+                    } else {
+                        toast.error(response.message);
+                    }
+                } else {
+                    console.log("login failed");
+                }
+            } catch (err) {
+                toast.error(err.message);
             }
-        }catch(err){
-            console.log(err.message);
         }
-    }
+    });
 
     useEffect(() => {
         if (localStorage.getItem('userId')) navigate('/');
@@ -47,15 +59,7 @@ const Login = () => {
     }, []);
 
     useEffect(() => {
-        /* global google  */
-        google.accounts.id.initialize({
-            client_id: '1088689129534-i1mqntif6h93conom7klrn5huvkm5m87.apps.googleusercontent.com',
-            callback: handleGoogleCallback
-        });
-        google.accounts.id.renderButton(
-            document.getElementById('signInDiv'),
-            { theme: 'outline', size: 'large' }
-        );
+
         // eslint-disable-next-line
     }, []);
 
@@ -125,7 +129,12 @@ const Login = () => {
                                     </MDBBtn>
                                 }
                                 <hr className="my-4" />
-                                <div className="mb-3 w-100 justify-center" style={{display: 'flex', justifyContent: 'center'}} id='signInDiv'></div>
+                                <MDBBtn className="mb-3 w-100" size="lg" style={{ backgroundColor: 'blueviolet' }}
+                                    onClick={() => googleLogin()}
+                                >
+                                    <MDBIcon fab icon="google" className="mx-2" />
+                                    Sign in with Google
+                                </MDBBtn>
                                 <MDBBtn className="mb-3 w-100" size="lg" style={{ backgroundColor: '#3b5998' }}>
                                     <MDBIcon fab icon="facebook-f" className="mx-2" />
                                     Sign in with facebook
