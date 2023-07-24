@@ -49,7 +49,7 @@ const Login = () => {
     useEffect(() => {
         /* global google  */
         google.accounts.id.initialize({
-            client_id: '1088689129534-i1mqntif6h93conom7klrn5huvkm5m87.apps.googleusercontent.com',
+            client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
             callback: handleGoogleCallback
         });
         google.accounts.id.renderButton(
