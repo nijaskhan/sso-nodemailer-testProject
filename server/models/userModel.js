@@ -10,12 +10,14 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     password: {
-        type: String,
-        required: true
+        type: String
     },
     verified: {
         type: Boolean,
         default: false,
+    },
+    profilePic: {
+        type: String
     }
 });
 

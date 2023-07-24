@@ -7,10 +7,10 @@ const Home = () => {
     const navigate = useNavigate();
 
     const handleGetUser = async (userId) => {
-        try{
+        try {
             const response = await getUser(userId);
             setUser(response.user);
-        }catch(err){
+        } catch (err) {
             console.log(err.message);
             localStorage.removeItem('userId');
             navigate('/login');
@@ -18,19 +18,24 @@ const Home = () => {
     }
 
     useEffect(() => {
-        if(localStorage.getItem('userId')){
+        if (localStorage.getItem('userId')) {
             const userId = JSON.parse(localStorage.getItem('userId'));
             handleGetUser(userId);
-        }else{
+        } else {
             window.location.href = '/login';
         }
         // eslint-disable-next-line
     }, []);
 
     return (
-        <div className='d-flex 100vh justify-content-center align-items-center'>
-            <h1>Home page of {user?.name}</h1>
-        </div>
+        <>
+            <div className='d-flex 100vh justify-content-center align-items-center'>
+                <h1>Home page of {user?.name}</h1>
+            </div>
+            <div className='d-flex 100vh justify-content-center align-items-center'>
+                <img src={user?.profilePic} alt='profile_pic' />
+            </div>
+        </>
     )
 }
 

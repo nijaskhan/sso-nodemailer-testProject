@@ -96,5 +96,37 @@ module.exports = {
             console.log(err.message);
             res.redirect(`http://localhost:3000/`);
         }
+    },
+    googleAuthLogin: async(req, res)=>{
+        try{
+            const userExist = await User.findOne({
+                email: req.body.email
+            });
+            if(userExist){
+                return res.status(200).json({
+                    success: true,
+                    message: `Logged in as ${userExist.name}`,
+                    user: userExist
+                });
+            }else{
+                const newUser = new User({
+                    name: req.body.name,
+                    email: req.body.email,
+                    verified: true,
+                    profilePic: req.body.picture
+                });
+                await newUser.save();
+                return res.status(200).json({
+                    success: true,
+                    message: `Logged in as ${newUser.name}`,
+                    user: newUser
+                });
+            }
+        }catch(err){
+            return res.status(401).json({
+                success: false,
+                message: err.message
+            });
+        }
     }
 }

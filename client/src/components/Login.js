@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import jwtDecode from 'jwt-decode';
 import {
     MDBBtn,
     MDBContainer,
@@ -11,10 +12,10 @@ import {
     MDBCheckbox
 }
     from 'mdb-react-ui-kit';
-    import {Button, Spinner} from 'react-bootstrap'
+import { Button, Spinner } from 'react-bootstrap'
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
-import { loginUser } from '../api/apiCalls';
+import { googleAuthLogin, loginUser } from '../api/apiCalls';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -24,8 +25,37 @@ const Login = () => {
     const navigate = useNavigate();
     const loginbtn = useRef(null);
 
+    const handleGoogleCallback = async(googleUser) => {
+        const user = jwtDecode(googleUser.credential);
+        try{
+            const response = await googleAuthLogin(user);
+            if(response.success){
+                console.log("login successful");
+                localStorage.setItem("userId", JSON.stringify(response.user._id));
+                navigate('/');
+            }else{
+                toast.error(response.message);
+            }
+        }catch(err){
+            console.log(err.message);
+        }
+    }
+
     useEffect(() => {
         if (localStorage.getItem('userId')) navigate('/');
+        // eslint-disable-next-line
+    }, []);
+
+    useEffect(() => {
+        /* global google  */
+        google.accounts.id.initialize({
+            client_id: '1088689129534-i1mqntif6h93conom7klrn5huvkm5m87.apps.googleusercontent.com',
+            callback: handleGoogleCallback
+        });
+        google.accounts.id.renderButton(
+            document.getElementById('signInDiv'),
+            { theme: 'outline', size: 'large' }
+        );
         // eslint-disable-next-line
     }, []);
 
@@ -38,7 +68,6 @@ const Login = () => {
                 console.log("login successful");
                 localStorage.setItem("userId", JSON.stringify(response.user._id));
                 navigate('/');
-                toast.success(response.message);
             } else {
                 localStorage.setItem("userId", JSON.stringify(response.user._id));
                 toast.info(response.message);
@@ -61,12 +90,12 @@ const Login = () => {
 
                                 <MDBInput wrapperClass='mb-4 w-100' label='Email address' placeholder='Email'
                                     {...register("email", { required: true })} type='email' size="lg" />
-                                <MDBInput wrapperClass='mb-4 w-100' label='Password' 
-                                onKeyUp={(e) => {
-                                    if (e.key === 'Enter') {
-                                        loginbtn.current.click();
-                                    };
-                                }} placeholder='Password'
+                                <MDBInput wrapperClass='mb-4 w-100' label='Password'
+                                    onKeyUp={(e) => {
+                                        if (e.key === 'Enter') {
+                                            loginbtn.current.click();
+                                        };
+                                    }} placeholder='Password'
                                     {...register("password", { required: true })} type='password' size="lg" />
 
                                 <MDBCheckbox name='flexCheck' className='mb-4' label='Remember password' />
@@ -96,10 +125,7 @@ const Login = () => {
                                     </MDBBtn>
                                 }
                                 <hr className="my-4" />
-                                <MDBBtn className="mb-2 w-100" size="lg" style={{ backgroundColor: '#dd4b39' }}>
-                                    <MDBIcon fab icon="google" className="mx-2" />
-                                    Sign in with google
-                                </MDBBtn>
+                                <div className="mb-3 w-100 justify-center" style={{display: 'flex', justifyContent: 'center'}} id='signInDiv'></div>
                                 <MDBBtn className="mb-3 w-100" size="lg" style={{ backgroundColor: '#3b5998' }}>
                                     <MDBIcon fab icon="facebook-f" className="mx-2" />
                                     Sign in with facebook

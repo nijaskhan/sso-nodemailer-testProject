@@ -7,4 +7,6 @@ router.get('/:userId/verify/:token', routeControllers.verifyEmail);
 
 router.post('/getUser', routeControllers.getUser);
 
+router.post('/googleAuth', routeControllers.googleAuthLogin);
+
 module.exports = router;
