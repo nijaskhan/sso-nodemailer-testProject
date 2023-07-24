@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
+import { LoginSocialFacebook } from 'reactjs-social-login';
+import { FacebookLoginButton } from 'react-social-login-buttons';
 import {
     MDBBtn,
     MDBContainer,
@@ -135,10 +137,18 @@ const Login = () => {
                                     <MDBIcon fab icon="google" className="mx-2" />
                                     Sign in with Google
                                 </MDBBtn>
-                                <MDBBtn className="mb-3 w-100" size="lg" style={{ backgroundColor: '#3b5998' }}>
-                                    <MDBIcon fab icon="facebook-f" className="mx-2" />
-                                    Sign in with facebook
-                                </MDBBtn>
+                                <LoginSocialFacebook
+                                    appId={process.env.REACT_APP_FB_APP_ID || '970189380865964'}
+                                    onResolve={({ provider, data }) => {
+                                        console.log(data, "data");
+                                        console.log(provider, "provider");
+                                    }}
+                                    onReject={(err) => {
+                                        console.log(err, "error");
+                                    }}
+                                >
+                                    <FacebookLoginButton />
+                                </LoginSocialFacebook>
                             </MDBCardBody>
                         </MDBCard>
                     </MDBCol>
