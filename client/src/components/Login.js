@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     MDBBtn,
     MDBContainer,
@@ -22,6 +22,7 @@ const Login = () => {
     const [verifyPopup, setverifyPopup] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const loginbtn = useRef(null);
 
     useEffect(() => {
         if (localStorage.getItem('userId')) navigate('/');
@@ -60,7 +61,12 @@ const Login = () => {
 
                                 <MDBInput wrapperClass='mb-4 w-100' label='Email address' placeholder='Email'
                                     {...register("email", { required: true })} type='email' size="lg" />
-                                <MDBInput wrapperClass='mb-4 w-100' label='Password' placeholder='Password'
+                                <MDBInput wrapperClass='mb-4 w-100' label='Password' 
+                                onKeyUp={(e) => {
+                                    if (e.key === 'Enter') {
+                                        loginbtn.current.click();
+                                    };
+                                }} placeholder='Password'
                                     {...register("password", { required: true })} type='password' size="lg" />
 
                                 <MDBCheckbox name='flexCheck' className='mb-4' label='Remember password' />
@@ -77,7 +83,7 @@ const Login = () => {
                                             Loading...
                                         </Button>
                                     ) : (
-                                        <MDBBtn size='lg' onClick={handleSubmit(onSubmit)}>
+                                        <MDBBtn size='lg' ref={loginbtn} onClick={handleSubmit(onSubmit)}>
                                             Login
                                         </MDBBtn>
                                     )
