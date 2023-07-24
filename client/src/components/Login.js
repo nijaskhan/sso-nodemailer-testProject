@@ -59,12 +59,7 @@ const Login = () => {
         if (localStorage.getItem('userId')) navigate('/');
         // eslint-disable-next-line
     }, []);
-
-    useEffect(() => {
-
-        // eslint-disable-next-line
-    }, []);
-
+    
     const onSubmit = async (data) => {
         setLoading(true);
         const response = await loginUser(data);
